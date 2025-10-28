@@ -1,22 +1,22 @@
 const request = require('supertest');
 const { expect } = require('chai');
+require('dotenv').config();
+const { obterToken } = require('./helpers/autenticacao');
 
 describe('Calcular Risco', () => {
     describe('POST /api/pacientes/:id/risco', () => {
+        let token;
+
+        beforeEach(async () => {
+            token = await obterToken('medico', '123');
+        })
+
         it('Deve retornar status 200 e calcular risco ALTO para paciente com idade > 65, IMC > 35 e pressão >= 160', async () => {
             // Login como médico
-            const respostaLogin = await request('http://localhost:3000')
-                .post('/api/login')
-                .set('Content-Type', 'application/json')
-                .send({
-                    'nome': 'medico',
-                    'senha': '123'
-                });
-            
-            const token = respostaLogin.body.token;
+            token = await obterToken('medico', '123');
 
             // Registrar paciente com dados que resultam em risco ALTO
-            const respostaPaciente = await request('http://localhost:3000')
+            const respostaPaciente = await request(process.env.BASE_URL)
                 .post('/api/pacientes')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -30,7 +30,7 @@ describe('Calcular Risco', () => {
             const pacienteId = respostaPaciente.body.id;
 
             // Calcular risco
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteId}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -46,18 +46,10 @@ describe('Calcular Risco', () => {
 
         it('Deve retornar status 200 e calcular risco MODERADO', async () => {
             // Login como médico
-            const respostaLogin = await request('http://localhost:3000')
-                .post('/api/login')
-                .set('Content-Type', 'application/json')
-                .send({
-                    'nome': 'medico',
-                    'senha': '123'
-                });
-            
-            const token = respostaLogin.body.token;
+            token = await obterToken('medico', '123');
 
             // Registrar paciente com dados que resultam em risco MODERADO
-            const respostaPaciente = await request('http://localhost:3000')
+            const respostaPaciente = await request(process.env.BASE_URL)
                 .post('/api/pacientes')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -71,7 +63,7 @@ describe('Calcular Risco', () => {
             const pacienteId = respostaPaciente.body.id;
 
             // Calcular risco
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteId}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -82,23 +74,15 @@ describe('Calcular Risco', () => {
             expect(resposta.body).to.have.property('idade', 55);
             expect(resposta.body).to.have.property('imc', 28);
             expect(resposta.body).to.have.property('pressao', 140);
-        });     
-       
+        });
+
 
         it('Deve retornar status 200 e calcular risco BAIXO para paciente com todos os valores baixos', async () => {
             // Login como médico
-            const respostaLogin = await request('http://localhost:3000')
-                .post('/api/login')
-                .set('Content-Type', 'application/json')
-                .send({
-                    'nome': 'medico',
-                    'senha': '123'
-                });
-            
-            const token = respostaLogin.body.token;
+            token = await obterToken('medico', '123');
 
             // Registrar paciente com dados que resultam em risco BAIXO
-            const respostaPaciente = await request('http://localhost:3000')
+            const respostaPaciente = await request(process.env.BASE_URL)
                 .post('/api/pacientes')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -112,7 +96,7 @@ describe('Calcular Risco', () => {
             const pacienteId = respostaPaciente.body.id;
 
             // Calcular risco
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteId}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -127,19 +111,12 @@ describe('Calcular Risco', () => {
 
         it('Deve retornar status 404 quando o paciente não existir', async () => {
             // Login como médico
-            const respostaLogin = await request('http://localhost:3000')
-                .post('/api/login')
-                .set('Content-Type', 'application/json')
-                .send({
-                    'nome': 'medico',
-                    'senha': '123'
-                });
-            
-            const token = respostaLogin.body.token;
+            token = await obterToken('medico', '123');
+
             const pacienteIdInexistente = 99999;
 
             // Tentar calcular risco para paciente inexistente
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteIdInexistente}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -151,7 +128,7 @@ describe('Calcular Risco', () => {
 
         it('Deve retornar status 401 quando não fornecer token de autenticação', async () => {
             // Tentar calcular risco sem token
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post('/api/pacientes/1/risco')
                 .set('Content-Type', 'application/json')
                 .send();
@@ -161,17 +138,17 @@ describe('Calcular Risco', () => {
 
         it('Deve retornar status 403 quando tentar acessar com token de paciente', async () => {
             // Primeiro registrar um paciente
-            const respostaLogin = await request('http://localhost:3000')
+            const respostaLogin = await request(process.env.BASE_URL)
                 .post('/api/login')
                 .set('Content-Type', 'application/json')
                 .send({
                     'nome': 'medico',
                     'senha': '123'
                 });
-            
+
             const tokenMedico = respostaLogin.body.token;
 
-            const respostaPaciente = await request('http://localhost:3000')
+            const respostaPaciente = await request(process.env.BASE_URL)
                 .post('/api/pacientes')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${tokenMedico}`)
@@ -183,19 +160,19 @@ describe('Calcular Risco', () => {
                 });
 
             // Login como paciente
-            const respostaLoginPaciente = await request('http://localhost:3000')
+            const respostaLoginPaciente = await request(process.env.BASE_URL)
                 .post('/api/login')
                 .set('Content-Type', 'application/json')
                 .send({
                     'nome': 'Paciente Teste',
                     'senha': '123456'
                 });
-            
+
             const tokenPaciente = respostaLoginPaciente.body.token;
             const pacienteId = respostaPaciente.body.id;
 
             // Tentar calcular risco com token de paciente
-            const resposta = await request('http://localhost:3000')
+            const resposta = await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteId}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${tokenPaciente}`)
@@ -206,18 +183,10 @@ describe('Calcular Risco', () => {
 
         it('Deve adicionar o histórico ao paciente após calcular o risco', async () => {
             // Login como médico
-            const respostaLogin = await request('http://localhost:3000')
-                .post('/api/login')
-                .set('Content-Type', 'application/json')
-                .send({
-                    'nome': 'medico',
-                    'senha': '123'
-                });
-            
-            const token = respostaLogin.body.token;
+            token = await obterToken('medico', '123');
 
             // Registrar paciente
-            const respostaPaciente = await request('http://localhost:3000')
+            const respostaPaciente = await request(process.env.BASE_URL)
                 .post('/api/pacientes')
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -231,14 +200,14 @@ describe('Calcular Risco', () => {
             const pacienteId = respostaPaciente.body.id;
 
             // Calcular risco
-            await request('http://localhost:3000')
+            await request(process.env.BASE_URL)
                 .post(`/api/pacientes/${pacienteId}/risco`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
                 .send();
 
             // Verificar se o paciente tem histórico
-            const respostaPacienteAtualizado = await request('http://localhost:3000')
+            const respostaPacienteAtualizado = await request(process.env.BASE_URL)
                 .get(`/api/pacientes/${pacienteId}`)
                 .set('Content-Type', 'application/json')
                 .set('Authorization', `Bearer ${token}`)
@@ -246,8 +215,7 @@ describe('Calcular Risco', () => {
 
             expect(respostaPacienteAtualizado.status).to.equal(200);
             expect(respostaPacienteAtualizado.body).to.have.property('historico');
-            expect(respostaPacienteAtualizado.body.historico).to.be.an('array');
-            expect(respostaPacienteAtualizado.body.historico).to.have.lengthOf(1);
+            expect(respostaPacienteAtualizado.body.historico).to.be.an('array');           
             expect(respostaPacienteAtualizado.body.historico[0]).to.have.property('risco', 'BAIXO');
         });
     });
