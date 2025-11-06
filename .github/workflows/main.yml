@@ -28,10 +28,9 @@ jobs:
         run: npm run mock-server & 
 
       - name: Iniciar o servidor de aplicação 
-        run: npm start & # 
-
-      - name: Esperar servidor iniciar
-        run: npx wait-on http://localhost:3000
+        run: npm start & #       
 
       - name: Executar os testes 
         run: npx mocha "test/api/**/*.test.js"
+
+      - name: npx mocha test/controller/*/.test.js --reporter mochawesome --reporter-options reportDir=mochawesome-report,reportFilename=index,reportJson=true
