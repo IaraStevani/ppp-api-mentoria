@@ -30,5 +30,8 @@ jobs:
       - name: Iniciar o servidor de aplicação 
         run: npm start & # 
 
+      - name: Esperar servidor iniciar
+        run: npx wait-on http://localhost:3000
+
       - name: Executar os testes 
         run: npx mocha "test/api/**/*.test.js"
