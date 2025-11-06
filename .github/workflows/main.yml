@@ -28,7 +28,10 @@ jobs:
         run: npm run mock-server & 
 
       - name: Iniciar o servidor de aplicação 
-        run: npm start & #       
+        run: npm start & #
+
+      - name: Esperar que o servidor inicie
+        run: sleep 15
 
       - name: Executar os testes 
         run: npx mocha "test/api/**/*.test.js"     
