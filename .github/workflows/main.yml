@@ -1,4 +1,4 @@
-name: CI PPP
+name: CI API
 
 on:
   push:
@@ -6,10 +6,7 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest    
-
-    env:
-      BASE_URL: 'http://localhost:3000'            
+    runs-on: ubuntu-latest               
 
     steps:
       - name: Checkout do Repositório
@@ -18,7 +15,7 @@ jobs:
       - name: Instalação do Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.18.0'
+          node-version: '22'
 
       - name: Criar arquivo .env
         run:  echo "BASE_URL=http://localhost:3000" > .env
