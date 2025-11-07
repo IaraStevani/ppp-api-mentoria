@@ -6,7 +6,11 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest               
+    runs-on: ubuntu-latest  
+
+    # [variaveis]
+    env: 
+      BASE_URL: 'http://localhost:3000'
 
     steps:
       - name: Checkout do Repositório
@@ -15,10 +19,7 @@ jobs:
       - name: Instalação do Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-
-      - name: Criar arquivo .env
-        run:  echo "BASE_URL=http://localhost:3000" > .env
+          node-version: '22'      
 
       - name: Instalando as dependências
         run: npm install                        
