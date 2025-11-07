@@ -4,17 +4,15 @@ require('dotenv').config();
 const { obterToken } = require('./helpers/autenticacao');
 const { obterTokenPaciente } = require('./helpers/autenticacaoPaciente');
 
-describe('Buscar pacientes', () => {
-    describe('GET /api/pacientes', () => {
+describe('Buscar histórico do paciente', () => {
+    describe('GET /api/historico', () => {
         let token;
 
         beforeEach(async () => {
-            token = await obterToken('medico', '123');
+            token = await obterTokenPaciente('paciente', '123');
         })
 
-        it('Deve retornar o historico do paciente', async () => {
-
-            token = await obterTokenPaciente('paciente', '123');
+        it('Deve retornar o historico do paciente', async () => {            
 
             const resposta = await request(process.env.BASE_URL)
                 .get('/api/historico')

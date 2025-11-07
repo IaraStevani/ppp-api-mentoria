@@ -7,9 +7,22 @@ const { SECRET } = require('../middleware/auth');
 
 // Banco de dados em memória
 const db = {
-  usuarios: [], // médicos e pacientes
-  pacientes: [],
-  medicos: [],
+  usuarios: [
+    {
+    id: 1,
+    nome: 'medico',
+    senha: '123',
+    tipo: 'medico'
+  },
+  {
+    id: 2,
+    nome: 'paciente',
+    senha: '123',
+    tipo: 'paciente'
+  }
+  ], // médicos e pacientes
+  pacientes: [{id:2,nome:'paciente',idade:70,imc:40,pressao:160,historico:[]}],
+  medicos: [{id:1,nome: 'medico',senha:'123'}]
 };
 
 // Função para registrar usuário (médico ou paciente)
@@ -34,7 +47,7 @@ function registrarPaciente({ nome, idade, imc, pressao }) {
   const id = db.pacientes.length + 1;
   const paciente = new Paciente(id, nome, idade, imc, pressao, []);
   db.pacientes.push(paciente);
-  registrarUsuario({ nome, senha: '123456', tipo: 'paciente' }); // senha padrão
+  registrarUsuario({ nome, senha: '123', tipo: 'paciente' }); // senha padrão
   return paciente;
 }
 
