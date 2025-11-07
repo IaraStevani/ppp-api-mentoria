@@ -2,42 +2,29 @@ name: CI Mentoria
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
-
-    services:
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: >-
-          --health-cmd="mongosh --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    runs-on: ubuntu-latest    
 
     env:
-      BASE_URL: 'http://localhost:3000'
-      MONGO_URL: 'mongodb://localhost:27017/mentoria'      
+      BASE_URL: 'http://localhost:3000'            
 
     steps:
       - name: Checkout do Repositório
         uses: actions/checkout@v4
 
-      - name: Instalando as dependências
-        run: npm install
-
       - name: Criar arquivo .env
-        run: |
-          echo "BASE_URL=http://localhost:3000" > .env                   
+        run:  echo "BASE_URL=http://localhost:3000" > .env
+
+      - name: Instalando as dependências
+        run: npm install                        
 
       - name: Iniciar o servidor de aplicação
-        run: nohup node app.js &
+        run: node app.js &
 
       - name: Esperar que o servidor inicie
         run: sleep 20
