@@ -1,0 +1,34 @@
+name: CI API
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest  
+
+    # [variaveis]
+    env: 
+      BASE_URL: 'http://localhost:3000'
+
+    steps:
+      - name: Checkout do Repositório
+        uses: actions/checkout@v4
+
+      - name: Instalação do Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'      
+
+      - name: Instalando as dependências
+        run: npm install                        
+
+      - name: Iniciar o servidor de aplicação
+        run: node app.js &
+
+      - name: Esperar que o servidor inicie
+        run: sleep 20
+
+      - name: Executar os testes
+        run: npx mocha "test/api/**/*.test.js"
